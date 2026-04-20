@@ -39,7 +39,8 @@ graph TD
 
 The Fraud Detective Agent doesn't just return a binary score; it provides step-by-step logical deduction based on the user's baseline. Below is an example of the agent analyzing a transaction against known Mirror Hacker tactics:
 
-\<img width="600" alt="agent\_reasoning" src="https://github.com/user-attachments/assets/1699b7a1-fa28-4b8f-b678-4c9380ea01d3" /\>
+<img width="482" height="467" alt="agent_reasoning" src="https://github.com/user-attachments/assets/7ef4cf88-81b6-4101-8610-c7d55a6dc6a4" />
+
 
 -----
 
