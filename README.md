@@ -1,125 +1,102 @@
-# AI Agent-Based Fraud Detection System
+# Multi-Agent Fraud Detection System 🕵️‍♂️🤖
 
-This project implements a robust fraud detection system using Python, pandas for data processing, and Microsoft AutoGen for cooperative multi-agent orchestration.
+An AI-driven fraud detection system developed for the **Reply Mirror AI Challenge**. This project utilizes a multi-agent architecture to identify complex transaction patterns, specifically targeting "Mirror Hacker" tactics, using AutoGen and Llama 3.
 
-## Features
+---
 
-- **Data Ingestion Module**: Handles loading and preprocessing of multiple datasets including transactions, locations, users, SMS conversations, and email messages.
-- **Data Cleaning**: Includes handling missing values, type conversions, and timestamp normalization.
-- **Cooperative Multi-Agent Framework**: Three specialized agents work together to analyze transactions:
-  - **Data Profiler Agent**: Retrieves and summarizes transaction, user, location, and communication data
-  - **Fraud Detective Agent**: Evaluates data against evolving malicious patterns (temporal, geographic, behavioral)
-  - **Adaptive Strategy Agent**: Reviews findings, maintains anomaly memory, and makes final decisions to minimize false positives
+## 🧠 System Architecture
 
-## Installation
+The workflow leverages a dual-agent setup to process raw data, build contextual user profiles, and evaluate fraud risk.
 
-1. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+```mermaid
+graph TD
+    subgraph Data Flow
+        A[Competition Dataset] -->|Loaded via| B[data_ingestion.py]
+    end
 
-2. Set up your OpenAI API key:
-   ```
-   export OPENAI_API_KEY="your-api-key-here"
-   ```
+    subgraph AutoGen Multi-Agent System
+        B -->|Raw Transactions| C(Data Profiler Agent)
+        C -->|Generates Context Dossier| D(Fraud Detective Agent)
+    end
 
-## Data Structure
+    subgraph External Integrations
+        D <-->|Prompt & Inference| E[OpenRouter API / Llama 3]
+        C -.->|Agent Tracing| F[(Langfuse)]
+        D -.->|Cost & Token Tracking| F
+    end
 
-Place your datasets in the `data/` directory:
+    subgraph Output
+        D -->|Fraud Probabilities| G[submission.txt]
+    end
+    
+    style C fill:#1f77b4,stroke:#fff,stroke-width:2px,color:#fff
+    style D fill:#ff7f0e,stroke:#fff,stroke-width:2px,color:#fff
+````
 
-- `Transactions.csv`: Transaction data with columns like ID, user_id, type, amount, location, payment method, timestamp, sender IBAN (optional)
-- `Locations.csv` or `Locations.json`: Geo-referenced location data with location_id
-- `Users.csv`: User demographic information with user_id
-- `Conversations.csv`: SMS thread data with user_id, timestamp
-- `Messages.csv`: Email message data with user_id, timestamp
+-----
 
-## Usage
+## 🕵️ Agent Reasoning in Action
 
-### Single Transaction Analysis
-```python
-from agent_framework import analyze_transaction
+The Fraud Detective Agent doesn't just return a binary score; it provides step-by-step logical deduction based on the user's baseline. Below is an example of the agent analyzing a transaction against known Mirror Hacker tactics:
 
-result = analyze_transaction("TXN_12345")
-print(f"Decision: {result['decision']}, Confidence: {result['confidence']}")
+\<img width="600" alt="agent\_reasoning" src="https://github.com/user-attachments/assets/1699b7a1-fa28-4b8f-b678-4c9380ea01d3" /\>
+
+-----
+
+## 🚀 Key Features
+
+  * **Data Profiling:** Automatically builds "Context Dossiers" for users, identifying baseline behavioral norms from historical data.
+  * **Tactical Analysis:** Evaluates transactions against specific "Mirror Hacker" indicators:
+      * Targeting new merchants
+      * Shifting temporal habits
+      * Geographic inconsistencies
+      * Unusual behavioral sequences in 48-hour windows
+  * **Observability:** Integrated with **Langfuse** for real-time tracing of agent thought processes and cost monitoring.
+
+-----
+
+## 🛠️ Tech Stack
+
+  * **Orchestration:** [Microsoft AutoGen](https://microsoft.github.io/autogen/)
+  * **LLM:** Meta Llama 3 (via OpenRouter)
+  * **Observability:** Langfuse
+  * **Environment:** Python 3.10+
+
+-----
+
+## 📦 Getting Started
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone [https://github.com/Sujallsh/Multi-agent-fraud-detection.git](https://github.com/Sujallsh/Multi-agent-fraud-detection.git)
+    cd Multi-agent-fraud-detection
+    ```
+
+2.  **Install dependencies:**
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Configure Environment:**
+    Rename `.env.example` to `.env` and add your API keys:
+
+      * `OPENROUTER_API_KEY`
+      * `LANGFUSE_PUBLIC_KEY`
+      * `LANGFUSE_SECRET_KEY`
+
+4.  **Run Evaluation:**
+
+    ```bash
+    python main.py
+    ```
+
+-----
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
 ```
 
-### Batch Evaluation Pipeline
-1. Prepare evaluation dataset: Create `data/evaluation_transactions.csv` with a `transaction_id` column (sample provided)
-2. Run evaluation:
-   ```python
-   python evaluate.py
-   ```
-3. Results are exported to `fraud_results.txt` containing only fraudulent transaction IDs
-
-### Execution Instructions
-1. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
-2. Set OpenAI API key:
-   ```
-   export OPENAI_API_KEY="your-api-key-here"
-   ```
-
-3. Place data files in `data/` directory
-
-4. For evaluation:
-   - Create `data/evaluation_transactions.csv` with transaction IDs to analyze
-   - Run `python evaluate.py`
-   - Check `fraud_results.txt` for results
-
-### Reproducibility
-To generate requirements.txt with exact versions:
-```python
-python generate_requirements.py
-```
-
-## Agent Architecture
-
-The system uses a GroupChat where agents communicate in sequence:
-
-1. **Data Profiler** summarizes relevant data for the transaction
-2. **Fraud Detective** analyzes for suspicious patterns
-3. **Adaptive Strategy** reviews, considers historical anomalies, and makes final decision
-
-The Adaptive Strategy Agent maintains memory of flagged anomalies to adapt detection strategies over time.
-
-## Modules
-
-- `data_ingestion.py`: Functions for loading and cleaning datasets
-- `agent_framework.py`: Cooperative multi-agent system using AutoGen
-  - **`build_transaction_context()`**: Core Data Profiler function that compiles comprehensive transaction dossiers
-- `evaluate.py`: Batch evaluation pipeline for transaction analysis
-- `generate_requirements.py`: Script to generate reproducible requirements.txt
-- `main.py`: Example usage script
-- `demo_profiler.py`: Demo script showing how to use `build_transaction_context()`
-
-## Data Profiler Agent
-
-The Data Profiler Agent builds comprehensive transaction context dossiers through the `build_transaction_context()` function. This function:
-
-1. **Extracts transaction details** (Sender ID, Timestamp, Amount)
-2. **Retrieves user demographics** from the Users dataset
-3. **Establishes spending baseline** using the last 5 prior transactions
-4. **Collects location data** within a 48-hour window (matching BioTag to User ID)
-5. **Gathers communications** (SMS and emails) within 48-hour window
-6. **Compiles a Context Dossier** formatted for Fraud Detective analysis
-
-For detailed documentation, see [DATA_PROFILER_AGENT.md](DATA_PROFILER_AGENT.md)
-
-### Quick Example
-```python
-from agent_framework import build_transaction_context, transactions_df, locations_df, users_df, conversations_df, messages_df
-
-dossier = build_transaction_context(
-    transaction_id="TXN_12345",
-    df_transactions=transactions_df,
-    df_locations=locations_df,
-    df_users=users_df,
-    df_sms=conversations_df,
-    df_mails=messages_df
-)
-
-print(dossier)  # Formatted context ready for Fraud Detective analysis
-```
